@@ -15,9 +15,9 @@
 # limitations under the License.
 #
 import logging
+from requests import get
 
 from ochopod.frameworks.marathon import Marathon
-from ochopod.core.utils import shell
 
 #: Our ochopod logger.
 logger = logging.getLogger('ochopod')
@@ -29,14 +29,12 @@ class Pod(Marathon):
     """
 
     def get_node_details(self):
-
         #
         # - we are (assuming to be) deployed on EC2
         # - get our underlying metadata using curl at 169.254.169.254
         #
         def _peek(token):
-            _, lines = shell('curl --max-time 1 -f http://169.254.169.254/latest/meta-data/%s' % token)
-            return lines[0] if lines else ''
+            return get('http://169.254.169.254/latest/meta-data/%s' % token).content
 
         #
         # - get our local and public IPV4 addresses
@@ -45,10 +43,10 @@ class Pod(Marathon):
         #
         hints = \
             {
-                'fwk':      'marathon (ec2)',
-                'ip':       _peek('local-ipv4'),
-                'node':     _peek('instance-id'),
-                'public':   _peek('public-ipv4'),
+                'fwk': 'marathon (ec2)',
+                'ip': _peek('local-ipv4'),
+                'node': _peek('instance-id'),
+                'public': _peek('public-ipv4'),
             }
 
         assert hints['ip'] and hints['node'], 'are you running on EC2 ?'

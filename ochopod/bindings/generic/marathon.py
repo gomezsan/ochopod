@@ -60,6 +60,6 @@ class Pod(Marathon):
 
         return \
             {
-                'ip':       _peek("getent ahostsv4 $HOST | grep STREAM | awk '{print $1}'"),
+                'ip':       os.environ['HOST'],
                 'node':     os.environ['HOST']
             }
